@@ -1,0 +1,11 @@
+# Code ownership and review requirements
+
+# All PRs require at least one review
+* @ArtificialJerome
+
+# Scripts require careful review
+/scripts/ @ArtificialJerome
+/.github/workflows/ @ArtificialJerome
+
+# Documentation must be reviewed
+*.md @ArtificialJerome
