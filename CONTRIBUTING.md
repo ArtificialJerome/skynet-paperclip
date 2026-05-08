@@ -17,6 +17,7 @@
 ## Submitting PRs
 
 Include in your PR description:
+
 - What changed
 - Why (motivation/context)
 - Any impact on sync scripts or live environment

@@ -1,10 +1,12 @@
 # Skynet Paperclip Repository
 
-One-way sync of Paperclip configuration and scripts from this repository to live operational environments.
+One-way sync of Paperclip configuration and scripts from this repository to
+live operational environments.
 
 ## Overview
 
 This repository is the single source of truth for:
+
 - Operational scripts (sync, audit, drift detection)
 - Deployment manifests and configurations
 - Automation rules and triggers
@@ -26,7 +28,8 @@ cd skynet-paperclip
 ./scripts/export-to-live.sh [--dry-run]
 ```
 
-This reads the current `HEAD` of the repo and writes tracked files to their mapped live locations (see manifest in `scripts/export-to-live.sh`).
+This reads the current `HEAD` of the repo and writes tracked files to their
+mapped live locations (see manifest in `scripts/export-to-live.sh`).
 
 ### Check for drift
 
@@ -34,7 +37,8 @@ This reads the current `HEAD` of the repo and writes tracked files to their mapp
 ./scripts/audit-drift.sh
 ```
 
-Compares your live environment against the last-applied repo commit. Exits non-zero if drift is detected.
+Compares your live environment against the last-applied repo commit. Exits
+non-zero if drift is detected.
 
 ## How to propose changes
 
@@ -47,7 +51,7 @@ See `CONTRIBUTING.md` for detailed guidelines.
 
 ## Sync model
 
-```
+```text
 Repository (main branch)
     ↓
     export-to-live.sh
@@ -60,6 +64,7 @@ The sync script is **idempotent** and tracks the applied commit in `~/.paperclip
 ### Sync state
 
 After each successful sync, `~/.paperclip/sync-state.json` stores:
+
 - Last applied commit SHA
 - Timestamp of last sync
 - Files that were synced
@@ -85,6 +90,7 @@ Shows what would be written without making changes.
 ### Drift detected
 
 Run `audit-drift.sh` to see what's changed, then:
+
 - Either `export-to-live.sh` to bring live back in sync
 - Or open an issue if the drift is intentional
 
