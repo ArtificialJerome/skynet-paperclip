@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -18,7 +22,7 @@ jobs:
       - name: Check links
         uses: lycheeverse/lychee-action@v1
         with:
-          args: --accept 200,204,301,302,307,308,403,429 --timeout 10 '**.md'
+          args: --accept 200,204,301,302,307,308,403,429 --timeout 10 '**/*.md'
       - name: Validate YAML
         uses: ibiqlik/action-yamllint@v3
         with:
