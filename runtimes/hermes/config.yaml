@@ -1,0 +1,9 @@
+model:
+  provider: <set-by-runtime>
+  default: <set-by-runtime>
+web:
+  provider: <set-by-runtime>
+  api_key: <set-by-runtime>
+onboarding:
+  seen:
+    openclaw_residue_cleanup: <set-by-runtime>

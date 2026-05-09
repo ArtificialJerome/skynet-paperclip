@@ -1,0 +1,89 @@
+{
+  "providers": {
+    "nvidia": {
+      "baseUrl": "https://integrate.api.nvidia.com/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+          "name": "NVIDIA Llama 3.3 Nemotron Super 49b v1.5",
+          "reasoning": false
+        },
+        {
+          "id": "nvidia/nemotron-3-super-120b-a12b",
+          "name": "NVIDIA NEMOTRON 3 Super 120B",
+          "reasoning": false
+        }
+      ],
+      "apiKey": "NVIDIA_API_KEY"
+    },
+    "openrouter": {
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "google/gemma-4-26b-a4b-it:free",
+          "name": "Gemma 4 26B Free",
+          "reasoning": false
+        },
+        {
+          "id": "deepseek/deepseek-chat",
+          "name": "DeepSeek Chat",
+          "reasoning": false
+        },
+        {
+          "id": "google/gemini-2.0-flash-001",
+          "name": "Gemini 2.0 Flash",
+          "reasoning": false
+        },
+        {
+          "id": "google/gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "reasoning": false
+        }
+      ],
+      "apiKey": "OPENROUTER_API_KEY"
+    },
+    "google": {
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "google/gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "reasoning": false
+        }
+      ],
+      "apiKey": "OPENROUTER_API_KEY"
+    },
+    "openai": {
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "openai/gpt-4o",
+          "name": "GPT-4 Omni",
+          "reasoning": false
+        },
+        {
+          "id": "openai/o4-mini",
+          "name": "o4-mini",
+          "reasoning": false
+        }
+      ],
+      "apiKey": "OPENROUTER_API_KEY"
+    },
+    "qwen": {
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "qwen/qwen3-235b-a22b",
+          "name": "Qwen3 235B",
+          "reasoning": false
+        }
+      ],
+      "apiKey": "OPENROUTER_API_KEY"
+    }
+  }
+}

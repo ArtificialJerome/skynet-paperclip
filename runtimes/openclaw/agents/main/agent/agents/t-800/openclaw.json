@@ -1,0 +1,5 @@
+{
+  "model": {
+    "primary": "qwen/qwen3-next-80b"
+  }
+}
