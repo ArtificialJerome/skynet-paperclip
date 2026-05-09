@@ -1,0 +1,14 @@
+{
+  "default": true,
+  "MD013": {
+    "line_length": 200,
+    "heading_line_length": 200,
+    "code_blocks": false,
+    "code_lines": false,
+    "headers": false,
+    "headers_only": false
+  },
+  "MD041": false,
+  "MD032": false,
+  "MD036": false
+}
