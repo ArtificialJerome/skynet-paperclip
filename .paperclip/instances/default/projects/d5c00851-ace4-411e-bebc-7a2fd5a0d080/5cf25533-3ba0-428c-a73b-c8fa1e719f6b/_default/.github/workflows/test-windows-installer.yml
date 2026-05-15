@@ -1,0 +1,91 @@
+name: Windows installer integration test
+
+on:
+  push:
+    paths:
+      - 'install.ps1'
+      - 'docker-compose.yml'
+      - '.env.template'
+      - 'tests/windows/**'
+  pull_request:
+    paths:
+      - 'install.ps1'
+      - 'docker-compose.yml'
+      - '.env.template'
+      - 'tests/windows/**'
+  workflow_dispatch:
+
+jobs:
+  test-windows-install:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Docker Desktop is not available on windows-latest; use the built-in
+      # Docker engine that ships with the runner instead.
+      - name: Enable Docker (Linux containers via WSL2)
+        shell: pwsh
+        run: |
+          # GitHub-hosted Windows runners have docker pre-installed via WSL2
+          docker version
+          docker info
+
+      - name: Install Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code CLI
+        shell: pwsh
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run install.ps1 (non-interactive, skip auth step)
+        shell: pwsh
+        env:
+          CI: 'true'
+          PAPERCLIP_SKIP_AUTH: 'true'
+        run: |
+          # Patch install.ps1 to skip the interactive claude auth login step in CI.
+          # The auth step requires a browser; all other steps are fully automated.
+          $content = Get-Content .\install.ps1 -Raw
+          $content = $content -replace '(?ms)(# Step 5.*?)(Write-OK "Claude authentication complete")', `
+            '$1Write-Info "Skipping Claude auth in CI (PAPERCLIP_SKIP_AUTH=true)"`nWrite-OK "Claude authentication complete"'
+          $patched = "$env:TEMP\install-ci.ps1"
+          Set-Content $patched $content
+          & $patched
+
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          Install-Module -Name Pester -MinimumVersion 5.0 -Force -SkipPublisherCheck -Scope CurrentUser
+
+      - name: Run Pester integration tests
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = '.\tests\windows\installer.Tests.ps1'
+          $config.Output.Verbosity = 'Detailed'
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputPath = 'test-results.xml'
+          $config.TestResult.OutputFormat = 'JUnitXml'
+          $result = Invoke-Pester -Configuration $config
+          if ($result.FailedCount -gt 0) {
+            exit 1
+          }
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pester-results
+          path: test-results.xml
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Pester Windows
+          path: test-results.xml
+          reporter: java-junit
