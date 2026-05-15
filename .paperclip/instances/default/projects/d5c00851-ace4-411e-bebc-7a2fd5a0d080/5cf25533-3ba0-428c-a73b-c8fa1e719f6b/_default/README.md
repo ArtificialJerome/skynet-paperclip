@@ -100,7 +100,7 @@ docker compose pull
 docker compose up -d
 ```
 
-This pulls the latest `ghcr.io/paperclipai/paperclip:latest` image with no downtime on active sessions.
+This pulls the latest `ghcr.io/paperclipai/paperclip:latest` image and restarts the container. Active sessions will be briefly interrupted during the restart.
 
 ---
 
