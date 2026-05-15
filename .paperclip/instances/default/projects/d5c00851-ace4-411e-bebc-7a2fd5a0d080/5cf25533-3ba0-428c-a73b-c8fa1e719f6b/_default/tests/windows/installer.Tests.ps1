@@ -228,6 +228,35 @@ Describe "Health and API" {
     }
 }
 
+# ─── Claude authentication ────────────────────────────────────────────────────
+# Covers the guard added by fix #4: installer skips 'claude auth login' when
+# 'claude auth status' already returns 0.
+
+Describe "Claude authentication" {
+    It "claude auth status exits 0 (already authenticated)" {
+        claude auth status 2>&1 | Out-Null
+        $LASTEXITCODE | Should -Be 0
+    }
+}
+
+# ─── Post-startup health poll ─────────────────────────────────────────────────
+# Mirrors the 40-second health poll added by fix #5 in install.ps1.
+
+Describe "Post-startup health poll" {
+    It "health endpoint responds within 40 seconds of test start" {
+        $startTime = Get-Date
+        $healthy   = $false
+        while (((Get-Date) - $startTime).TotalSeconds -lt 40) {
+            try {
+                $r = Invoke-WebRequest -Uri $script:HealthUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+                if ($r.StatusCode -eq 200) { $healthy = $true; break }
+            } catch { }
+            Start-Sleep -Seconds 2
+        }
+        $healthy | Should -Be $true
+    }
+}
+
 # ─── Idempotency ─────────────────────────────────────────────────────────────
 
 Describe "Idempotency guards" {

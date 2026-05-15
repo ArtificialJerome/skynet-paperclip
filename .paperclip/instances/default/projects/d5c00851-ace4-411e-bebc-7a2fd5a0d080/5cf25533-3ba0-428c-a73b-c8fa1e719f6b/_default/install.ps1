@@ -55,6 +55,11 @@ function Test-DockerRunning {
     }
 }
 
+function Refresh-Path {
+    $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine') + ';' +
+                [System.Environment]::GetEnvironmentVariable('PATH', 'User')
+}
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Step 1 — Elevation check
 # ─────────────────────────────────────────────────────────────────────────────
@@ -97,6 +102,7 @@ if (-not $dockerInstalled) {
         try {
             winget install --id Docker.DockerDesktop --exact --accept-package-agreements --accept-source-agreements --silent
             Write-OK "Docker Desktop installed via winget"
+            $dockerInstalled = $true
         } catch {
             Write-Info "winget install failed. Falling back to direct download..."
             $dockerInstalled = $false
@@ -105,7 +111,7 @@ if (-not $dockerInstalled) {
 
     if (-not $dockerInstalled) {
         # Direct download fallback
-        $installerUrl = 'https://desktop.docker.com/win/main/amd64/Docker Desktop Installer.exe'
+        $installerUrl = 'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe'
         $installerPath = "$env:TEMP\DockerDesktopInstaller.exe"
 
         Write-Info "Downloading Docker Desktop installer (~600 MB)..."
@@ -191,9 +197,7 @@ if (-not $nodeInstalled) {
 
     winget install --id OpenJS.NodeJS.LTS --exact --accept-package-agreements --accept-source-agreements --silent
 
-    # Refresh PATH so node is available in this session
-    $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine') + ';' +
-                [System.Environment]::GetEnvironmentVariable('PATH', 'User')
+    Refresh-Path
 
     if (-not (Test-CommandExists 'node')) {
         Fail "Node.js was installed but 'node' is not in PATH. Please open a new terminal and re-run this script."
@@ -219,9 +223,7 @@ if (-not $claudeInstalled) {
         Fail "npm install failed with exit code $LASTEXITCODE. Check your Node.js/npm installation."
     }
 
-    # Refresh PATH
-    $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine') + ';' +
-                [System.Environment]::GetEnvironmentVariable('PATH', 'User')
+    Refresh-Path
 
     if (-not (Test-CommandExists 'claude')) {
         Fail "Claude Code CLI was installed but 'claude' is not in PATH. Please open a new terminal and re-run this script."
@@ -238,15 +240,25 @@ if (-not $claudeInstalled) {
 
 Write-Step "Claude authentication"
 
-Write-Info "Opening browser for Claude OAuth login. Sign in with your Claude Max account."
-Write-Info "If the browser does not open automatically, check the terminal for a URL."
-claude auth login
+$claudeAuthed = $false
+try {
+    claude auth status 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) { $claudeAuthed = $true }
+} catch { }
 
-if ($LASTEXITCODE -ne 0) {
-    Fail "Claude authentication failed (exit code $LASTEXITCODE). Please re-run the script and complete the browser login."
+if ($claudeAuthed) {
+    Write-OK "Already authenticated with Claude"
+} else {
+    Write-Info "Opening browser for Claude OAuth login. Sign in with your Claude Max account."
+    Write-Info "If the browser does not open automatically, check the terminal for a URL."
+    claude auth login
+
+    if ($LASTEXITCODE -ne 0) {
+        Fail "Claude authentication failed (exit code $LASTEXITCODE). Please re-run the script and complete the browser login."
+    }
+
+    Write-OK "Claude authentication complete"
 }
-
-Write-OK "Claude authentication complete"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Step 6 — Network access: NordVPN Meshnet or Tailscale Funnel
@@ -297,9 +309,7 @@ if ($nordVpnFound) {
     if (-not $tailscaleInstalled) {
         winget install --id Tailscale.Tailscale --exact --accept-package-agreements --accept-source-agreements --silent
 
-        # Refresh PATH
-        $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine') + ';' +
-                    [System.Environment]::GetEnvironmentVariable('PATH', 'User')
+        Refresh-Path
     } else {
         Write-OK "Tailscale already installed"
     }
@@ -432,6 +442,22 @@ try {
 } finally {
     Pop-Location
 }
+
+Write-Info "Waiting for Paperclip to respond on port 3100 (up to 40 s)..."
+$healthUrl  = 'http://localhost:3100/health'
+$startTime  = Get-Date
+$healthy    = $false
+while (((Get-Date) - $startTime).TotalSeconds -lt 40) {
+    try {
+        $r = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+        if ($r.StatusCode -eq 200) { $healthy = $true; break }
+    } catch { }
+    Start-Sleep -Seconds 2
+}
+if (-not $healthy) {
+    Fail "Paperclip did not respond on port 3100 within 40 s. Run 'docker compose logs' in $paperclipRoot for details."
+}
+Write-OK "Paperclip is up and healthy"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Step 9 — Print summary

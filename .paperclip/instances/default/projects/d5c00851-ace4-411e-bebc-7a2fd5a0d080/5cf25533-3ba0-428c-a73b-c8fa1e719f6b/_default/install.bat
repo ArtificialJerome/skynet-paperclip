@@ -6,6 +6,13 @@ net session >nul 2>&1
 if %errorLevel% neq 0 (
     echo Requesting administrator privileges...
     powershell -Command "Start-Process cmd.exe '/c \"%~f0\"' -Verb RunAs -Wait"
+    if !errorLevel! neq 0 (
+        echo.
+        echo ERROR: Administrator privileges were denied or the UAC prompt was cancelled.
+        echo Please right-click this file and choose "Run as administrator".
+        pause
+        exit /b 1
+    )
     exit /b 0
 )
 

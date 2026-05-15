@@ -133,8 +133,12 @@ if [[ -d /Applications/NordVPN.app ]] || command -v nordvpn &>/dev/null; then
     nordvpn set meshnet on \
       || die "Failed to enable NordVPN Meshnet. Make sure NordVPN is running and you are logged in."
 
-    # Derive the .nord hostname from the machine hostname
-    NORD_HOST=$(hostname | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+    # Prefer the authoritative .nord hostname from the NordVPN daemon; fall back to a derived guess.
+    NORD_HOST=$(nordvpn meshnet peer list --self 2>/dev/null \
+        | grep -i 'Hostname' | awk '{print $NF}' | sed 's/\.nord$//' | head -1)
+    if [[ -z "$NORD_HOST" ]]; then
+        NORD_HOST=$(hostname | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+    fi
     ACCESS_URL="http://${NORD_HOST}.nord:3100"
     log_ok "NordVPN Meshnet enabled"
 
@@ -254,7 +258,7 @@ for i in {1..20}; do
         break
     fi
     sleep 2
-    [[ "$i" -eq 20 ]] && log_info "Paperclip may still be initialising — check logs if it doesn't appear shortly"
+    [[ "$i" -eq 20 ]] && die "Paperclip did not respond on port 3100 after 40 s. Run 'docker compose logs' in $PAPERCLIP_DIR for details."
 done
 
 # ─── Step 9/9: Summary ────────────────────────────────────────────────────────
