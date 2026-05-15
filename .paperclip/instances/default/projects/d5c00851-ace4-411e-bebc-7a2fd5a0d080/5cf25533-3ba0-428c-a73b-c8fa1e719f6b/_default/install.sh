@@ -30,13 +30,17 @@ ARCH=$(uname -m)   # arm64 or x86_64
 [[ "$MACOS_MAJOR" -ge 12 ]] || \
   die "Paperclip requires macOS 12 (Monterey) or later. You have $MACOS_VERSION."
 
-ARCH_LABEL="$([[ "$ARCH" == "arm64" ]] && echo "Apple Silicon (arm64)" || echo "Intel (x86_64)")"
+if [[ "$ARCH" == "arm64" ]]; then
+    ARCH_LABEL="Apple Silicon (arm64)"
+else
+    ARCH_LABEL="Intel (x86_64)"
+fi
 log_ok "macOS $MACOS_VERSION on $ARCH_LABEL"
 
 # ─── Step 2/9: Docker Desktop ──────────────────────────────────────────────────
 log_step "Step 2/9 — Docker Desktop"
 
-if docker info &>/dev/null 2>&1; then
+if docker info &>/dev/null; then
     log_ok "Docker daemon already running — skipping install"
 else
     if [[ ! -d /Applications/Docker.app ]]; then
@@ -65,7 +69,7 @@ else
     open /Applications/Docker.app
     log_info "Waiting for Docker daemon to start (up to 120 s)…"
     ELAPSED=0
-    until docker info &>/dev/null 2>&1; do
+    until docker info &>/dev/null; do
         [[ "$ELAPSED" -ge 120 ]] && \
           die "Docker daemon did not start within 120 s. Try opening Docker Desktop manually."
         sleep 3; ELAPSED=$((ELAPSED + 3)); printf "."
@@ -114,7 +118,7 @@ fi
 log_step "Step 5/9 — Claude authentication"
 
 # claude auth status exits 0 when authenticated
-if claude auth status &>/dev/null 2>&1; then
+if claude auth status &>/dev/null; then
     log_ok "Already authenticated with Claude"
 else
     log_info "A browser window will open — sign in with your Claude Max account."
@@ -163,7 +167,7 @@ else
         log_ok "Tailscale already installed"
     fi
 
-    if ! tailscale status &>/dev/null 2>&1; then
+    if ! tailscale status &>/dev/null; then
         log_info "Connecting Tailscale (a browser login may open)…"
         sudo tailscale up || die "Failed to bring up Tailscale."
     else
