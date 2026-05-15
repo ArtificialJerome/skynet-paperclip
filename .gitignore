@@ -1,0 +1,45 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Secrets & credentials
+.env
+.env.local
+.env.*.local
+secrets.json
+credentials.json
+**/bitwarden*
+**/1password*
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Sync state
+~/.paperclip/sync-state.json
+
+# Logs
+*.log
+logs/
