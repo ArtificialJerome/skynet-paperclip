@@ -248,6 +248,9 @@ try {
 
 if ($claudeAuthed) {
     Write-OK "Already authenticated with Claude"
+} elseif ($env:PAPERCLIP_SKIP_AUTH) {
+    Write-Info "Skipping Claude auth (PAPERCLIP_SKIP_AUTH is set)"
+    Write-OK "Claude authentication skipped"
 } else {
     Write-Info "Opening browser for Claude OAuth login. Sign in with your Claude Max account."
     Write-Info "If the browser does not open automatically, check the terminal for a URL."

@@ -45,16 +45,8 @@ jobs:
         shell: pwsh
         env:
           CI: 'true'
-          PAPERCLIP_SKIP_AUTH: 'true'
-        run: |
-          # Patch install.ps1 to skip the interactive claude auth login step in CI.
-          # The auth step requires a browser; all other steps are fully automated.
-          $content = Get-Content .\install.ps1 -Raw
-          $content = $content -replace '(?ms)(# Step 5.*?)(Write-OK "Claude authentication complete")', `
-            '$1Write-Info "Skipping Claude auth in CI (PAPERCLIP_SKIP_AUTH=true)"`nWrite-OK "Claude authentication complete"'
-          $patched = "$env:TEMP\install-ci.ps1"
-          Set-Content $patched $content
-          & $patched
+          PAPERCLIP_SKIP_AUTH: '1'
+        run: .\install.ps1
 
       - name: Install Pester
         shell: pwsh
@@ -75,17 +67,33 @@ jobs:
             exit 1
           }
 
+      - name: Run Pester idempotency tests
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = '.\tests\windows\installer.Idempotency.Tests.ps1'
+          $config.Output.Verbosity = 'Detailed'
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputPath = 'idempotency-results.xml'
+          $config.TestResult.OutputFormat = 'JUnitXml'
+          $result = Invoke-Pester -Configuration $config
+          if ($result.FailedCount -gt 0) {
+            exit 1
+          }
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pester-results
-          path: test-results.xml
+          path: |
+            test-results.xml
+            idempotency-results.xml
 
       - name: Publish test results
         if: always()
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@3eeb9fc888e82e8be2fb356bbeec2750231672bc  # v1
         with:
           name: Pester Windows
-          path: test-results.xml
+          path: '*-results.xml'
           reporter: java-junit

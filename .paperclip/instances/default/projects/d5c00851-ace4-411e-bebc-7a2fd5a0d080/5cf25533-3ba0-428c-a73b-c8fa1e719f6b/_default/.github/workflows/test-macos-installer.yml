@@ -1,0 +1,125 @@
+name: macOS installer integration test
+
+on:
+  push:
+    paths:
+      - 'install.sh'
+      - 'install.command'
+      - 'docker-compose.yml'
+      - '.env.template'
+  pull_request:
+    paths:
+      - 'install.sh'
+      - 'install.command'
+      - 'docker-compose.yml'
+      - '.env.template'
+  workflow_dispatch:
+
+jobs:
+  test-macos-install:
+    runs-on: macos-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up mock tools
+        run: |
+          mkdir -p /tmp/mock-bin
+
+          # docker: exits 0 so install.sh treats the daemon as already running
+          printf '#!/usr/bin/env bash\nexit 0\n' > /tmp/mock-bin/docker
+
+          # claude: exits 0 for all sub-commands (auth status returns 0 → already authed)
+          printf '#!/usr/bin/env bash\nexit 0\n' > /tmp/mock-bin/claude
+
+          # nordvpn: exits 0 so install.sh takes the NordVPN Meshnet path instead of Tailscale
+          printf '#!/usr/bin/env bash\nexit 0\n' > /tmp/mock-bin/nordvpn
+
+          # curl: exits 0 so the health-check loop passes immediately after docker compose up
+          printf '#!/usr/bin/env bash\nexit 0\n' > /tmp/mock-bin/curl
+
+          chmod +x /tmp/mock-bin/*
+          echo "/tmp/mock-bin" >> "$GITHUB_PATH"
+
+      - name: Set up nvm stub
+        run: |
+          NVM_HOME="$HOME/.nvm"
+          mkdir -p "$NVM_HOME"
+          # Minimal stub so install.sh can source nvm.sh without downloading nvm.
+          # The nvm() function is a no-op; node is already available via actions/setup-node.
+          printf 'nvm() { return 0; }\n' > "$NVM_HOME/nvm.sh"
+
+      - name: Run install.sh (non-interactive)
+        env:
+          PAPERCLIP_SKIP_AUTH: '1'
+        run: bash install.sh
+
+      - name: Assert post-install state
+        run: |
+          set -euo pipefail
+          PAPERCLIP_DIR="$HOME/paperclip"
+
+          assert_exists() {
+            [ -e "$1" ] || { echo "FAIL: $1 missing"; exit 1; }
+          }
+
+          assert_exists "$PAPERCLIP_DIR"
+          assert_exists "$PAPERCLIP_DIR/db"
+          assert_exists "$PAPERCLIP_DIR/storage"
+          assert_exists "$PAPERCLIP_DIR/secrets"
+          assert_exists "$PAPERCLIP_DIR/projects"
+          assert_exists "$PAPERCLIP_DIR/.env"
+          assert_exists "$PAPERCLIP_DIR/docker-compose.yml"
+
+          grep -q "BETTER_AUTH_SECRET"                      "$PAPERCLIP_DIR/.env" \
+            || { echo "FAIL: missing BETTER_AUTH_SECRET in .env"; exit 1; }
+          grep -q "PAPERCLIP_PORT=3100"                     "$PAPERCLIP_DIR/.env" \
+            || { echo "FAIL: missing PAPERCLIP_PORT in .env"; exit 1; }
+          grep -q "PAPERCLIP_HOME="                         "$PAPERCLIP_DIR/.env" \
+            || { echo "FAIL: missing PAPERCLIP_HOME in .env"; exit 1; }
+          grep -q "ghcr.io/paperclipai/paperclip:latest"   "$PAPERCLIP_DIR/docker-compose.yml" \
+            || { echo "FAIL: wrong image in docker-compose.yml"; exit 1; }
+
+          echo "All post-install assertions passed."
+
+      - name: Assert idempotency (second install run)
+        env:
+          PAPERCLIP_SKIP_AUTH: '1'
+        run: |
+          set -euo pipefail
+          PAPERCLIP_DIR="$HOME/paperclip"
+
+          # Capture state before second run
+          ENV_HASH_BEFORE=$(shasum -a 256 "$PAPERCLIP_DIR/.env" | awk '{print $1}')
+          ENV_MTIME_BEFORE=$(stat -f '%m' "$PAPERCLIP_DIR/.env")
+          COMPOSE_HASH_BEFORE=$(shasum -a 256 "$PAPERCLIP_DIR/docker-compose.yml" | awk '{print $1}')
+          COMPOSE_MTIME_BEFORE=$(stat -f '%m' "$PAPERCLIP_DIR/docker-compose.yml")
+
+          # Run installer a second time
+          bash install.sh
+
+          # Assert .env unchanged
+          ENV_HASH_AFTER=$(shasum -a 256 "$PAPERCLIP_DIR/.env" | awk '{print $1}')
+          ENV_MTIME_AFTER=$(stat -f '%m' "$PAPERCLIP_DIR/.env")
+
+          [ "$ENV_HASH_BEFORE"  = "$ENV_HASH_AFTER"  ] \
+            || { echo "FAIL: .env content changed on second install"; exit 1; }
+          [ "$ENV_MTIME_BEFORE" = "$ENV_MTIME_AFTER" ] \
+            || { echo "FAIL: .env mtime changed — file was overwritten on second install"; exit 1; }
+
+          # Assert docker-compose.yml unchanged
+          COMPOSE_HASH_AFTER=$(shasum -a 256 "$PAPERCLIP_DIR/docker-compose.yml" | awk '{print $1}')
+          COMPOSE_MTIME_AFTER=$(stat -f '%m' "$PAPERCLIP_DIR/docker-compose.yml")
+
+          [ "$COMPOSE_HASH_BEFORE"  = "$COMPOSE_HASH_AFTER"  ] \
+            || { echo "FAIL: docker-compose.yml content changed on second install"; exit 1; }
+          [ "$COMPOSE_MTIME_BEFORE" = "$COMPOSE_MTIME_AFTER" ] \
+            || { echo "FAIL: docker-compose.yml mtime changed — file was overwritten on second install"; exit 1; }
+
+          echo "Idempotency: .env and docker-compose.yml unchanged after second install. OK"

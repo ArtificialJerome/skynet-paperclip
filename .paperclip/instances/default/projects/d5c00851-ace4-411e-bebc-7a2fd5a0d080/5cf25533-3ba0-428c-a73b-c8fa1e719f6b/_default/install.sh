@@ -120,6 +120,9 @@ log_step "Step 5/9 — Claude authentication"
 # claude auth status exits 0 when authenticated
 if claude auth status &>/dev/null; then
     log_ok "Already authenticated with Claude"
+elif [[ -n "${PAPERCLIP_SKIP_AUTH:-}" ]]; then
+    log_info "Skipping Claude auth (PAPERCLIP_SKIP_AUTH is set)"
+    log_ok "Claude authentication skipped"
 else
     log_info "A browser window will open — sign in with your Claude Max account."
     claude auth login || die "Claude authentication failed. Please re-run this script."
