@@ -29,7 +29,7 @@ Or open the installer page: [paperclip-installer landing page](https://artificia
 ### macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/paperclipai/paperclip-installer/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ArtificialJerome/paperclip-installer/main/install.sh | bash
 ```
 
 ### Windows
@@ -37,7 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/paperclipai/paperclip-installer/mai
 Open PowerShell **as Administrator**, then run:
 
 ```powershell
-irm https://raw.githubusercontent.com/paperclipai/paperclip-installer/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/ArtificialJerome/paperclip-installer/main/install.ps1 | iex
 ```
 
 ---
