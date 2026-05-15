@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Install Paperclip</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f11; color: #e8e8e8; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .card { max-width: 520px; width: 100%; text-align: center; }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: .5rem; }
+  .sub { color: #888; margin-bottom: 2.5rem; font-size: 1rem; }
+  .btn { display: inline-flex; align-items: center; gap: .6rem; padding: .9rem 2rem;
+    border-radius: 10px; font-size: 1.05rem; font-weight: 600; text-decoration: none;
+    transition: opacity .15s; margin-bottom: .75rem; width: 100%; justify-content: center; }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: #7c3aed; color: #fff; }
+  .btn-secondary { background: #1e1e2a; color: #ccc; border: 1px solid #333; }
+  .platform-note { font-size: .82rem; color: #666; margin-top: .4rem; margin-bottom: 2rem; }
+  details { margin-top: 1.5rem; text-align: left; background: #1a1a24;
+    border-radius: 8px; border: 1px solid #2a2a38; }
+  summary { padding: .75rem 1rem; cursor: pointer; font-size: .9rem; color: #888; }
+  .cli-box { padding: .75rem 1rem; border-top: 1px solid #2a2a38; }
+  .cli-label { font-size: .75rem; color: #666; margin-bottom: .4rem; text-transform: uppercase; letter-spacing: .05em; }
+  code { display: block; font-family: 'Menlo', 'Consolas', monospace; font-size: .82rem;
+    background: #0d0d15; color: #a78bfa; padding: .6rem .8rem; border-radius: 6px;
+    word-break: break-all; }
+  .os-badge { display: inline-block; font-size: .75rem; padding: .2rem .6rem;
+    border-radius: 100px; background: #2a2a38; color: #888; margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Install Paperclip</h1>
+  <p class="sub">Self-hosted AI agent platform. One-click setup.</p>
+  <p class="os-badge" id="os-badge">Detecting your OS...</p>
+  <div id="primary-cta"></div>
+  <div id="secondary-cta"></div>
+  <details>
+    <summary>Terminal / CLI install</summary>
+    <div class="cli-box" id="cli-box"></div>
+  </details>
+</div>
+<script>
+// Update RELEASES_URL to the GitHub releases page for the repo
+const RELEASES_URL = 'https://github.com/ArtificialJerome/paperclip-installer/releases/latest';
+const RAW_BASE = 'https://raw.githubusercontent.com/ArtificialJerome/paperclip-installer/main';
+
+const ua = navigator.userAgent;
+const isWin = /Win/.test(ua) && !/Mac/.test(ua);
+const isMac = /Mac/.test(ua);
+
+function makeBtn(href, label, icon, cls) {
+  return `<a class="btn ${cls}" href="${href}">${icon} ${label}</a>`;
+}
+
+const osBadge = document.getElementById('os-badge');
+const primary = document.getElementById('primary-cta');
+const secondary = document.getElementById('secondary-cta');
+const cli = document.getElementById('cli-box');
+
+if (isWin) {
+  osBadge.textContent = 'Windows detected';
+  primary.innerHTML = makeBtn(RELEASES_URL + '#windows', 'Download for Windows (.bat)', '⊞', 'btn-primary') +
+    '<p class="platform-note">Download install.bat and install.ps1 to the same folder, then double-click install.bat</p>';
+  secondary.innerHTML = makeBtn(RELEASES_URL + '#macos', 'Download for macOS (.command)', '🍎', 'btn-secondary');
+  cli.innerHTML = '<p class="cli-label">Windows PowerShell (run as Administrator)</p>' +
+    `<code>irm ${RAW_BASE}/install.ps1 | iex</code>`;
+} else if (isMac) {
+  osBadge.textContent = 'macOS detected';
+  primary.innerHTML = makeBtn(RELEASES_URL + '#macos', 'Download for macOS (.command)', '🍎', 'btn-primary') +
+    '<p class="platform-note">Download install.command, then double-click it (right-click → Open on first run)</p>';
+  secondary.innerHTML = makeBtn(RELEASES_URL + '#windows', 'Download for Windows (.bat)', '⊞', 'btn-secondary');
+  cli.innerHTML = '<p class="cli-label">macOS Terminal</p>' +
+    `<code>curl -fsSL ${RAW_BASE}/install.sh | bash</code>`;
+} else {
+  osBadge.textContent = 'OS not detected';
+  primary.innerHTML = makeBtn(RELEASES_URL, 'View all downloads', '⬇', 'btn-primary');
+  cli.innerHTML = '<p class="cli-label">macOS</p>' +
+    `<code>curl -fsSL ${RAW_BASE}/install.sh | bash</code>` +
+    '<p class="cli-label" style="margin-top:.75rem">Windows (PowerShell as Admin)</p>' +
+    `<code>irm ${RAW_BASE}/install.ps1 | iex</code>`;
+}
+</script>
+</body>
+</html>
