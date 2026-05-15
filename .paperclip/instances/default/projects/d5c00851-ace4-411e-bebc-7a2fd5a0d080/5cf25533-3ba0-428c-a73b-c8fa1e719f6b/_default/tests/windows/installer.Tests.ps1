@@ -58,10 +58,16 @@ Describe "Prerequisite binaries" {
         (Get-Command claude -ErrorAction SilentlyContinue) | Should -Not -BeNullOrEmpty
     }
 
-    It "winget is in PATH (required for future updates)" {
+    It "winget is in PATH" {
         (Get-Command winget -ErrorAction SilentlyContinue) | Should -Not -BeNullOrEmpty
     }
 }
+
+# NOTE: Step 6 (network exposure — Tailscale Funnel / NordVPN Meshnet) has no
+# automated test coverage. Both paths require hardware, live network accounts,
+# and interactive OAuth that cannot be replicated in CI runners. Manual
+# verification is required after any changes to the Step 6 code paths in
+# install.ps1 or install.sh.
 
 # ─── Data directory layout ────────────────────────────────────────────────────
 
