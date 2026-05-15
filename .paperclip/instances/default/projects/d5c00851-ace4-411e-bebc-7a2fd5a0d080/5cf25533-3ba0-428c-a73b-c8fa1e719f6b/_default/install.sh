@@ -131,7 +131,9 @@ log_step "Step 6/9 — Phone-accessible network exposure"
 
 ACCESS_URL=""
 
-if [[ -d /Applications/NordVPN.app ]] || command -v nordvpn &>/dev/null; then
+if [[ -n "${PAPERCLIP_SKIP_NETWORK:-}" ]]; then
+    log_info "Skipping network setup (PAPERCLIP_SKIP_NETWORK is set) — Paperclip will be accessible on localhost only"
+elif [[ -d /Applications/NordVPN.app ]] || command -v nordvpn &>/dev/null; then
     # ── NordVPN Meshnet path ──────────────────────────────────────────────────
     log_info "NordVPN detected — enabling Meshnet…"
     nordvpn set meshnet on \

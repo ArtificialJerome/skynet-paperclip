@@ -267,10 +267,10 @@ if ($claudeAuthed) {
 Write-Step "Configuring network access for phone/remote connections"
 
 $accessUrl = $null
-$nordVpnExe = "$env:PROGRAMFILES\NordVPN\nordvpn.exe"
-$nordVpnFound = (Test-Path $nordVpnExe) -or (Test-CommandExists 'nordvpn')
 
-if ($nordVpnFound) {
+if ($env:PAPERCLIP_SKIP_NETWORK) {
+    Write-Info "Skipping network setup (PAPERCLIP_SKIP_NETWORK is set) — Paperclip will be accessible on localhost only"
+} elseif ((Test-Path "$env:PROGRAMFILES\NordVPN\nordvpn.exe") -or (Test-CommandExists 'nordvpn')) {
     Write-Info "NordVPN detected. Enabling Meshnet..."
 
     & nordvpn set meshnet on
