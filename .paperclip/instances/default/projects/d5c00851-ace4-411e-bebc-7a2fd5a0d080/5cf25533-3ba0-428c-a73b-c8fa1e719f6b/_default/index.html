@@ -63,16 +63,16 @@ const cli = document.getElementById('cli-box');
 
 if (isWin) {
   osBadge.textContent = 'Windows detected';
-  primary.innerHTML = makeBtn(RELEASES_URL + '#windows', 'Download for Windows (.bat)', '⊞', 'btn-primary') +
+  primary.innerHTML = makeBtn(RELEASES_URL, 'Download for Windows (.bat)', '⊞', 'btn-primary') +
     '<p class="platform-note">Download install.bat and install.ps1 to the same folder, then double-click install.bat</p>';
-  secondary.innerHTML = makeBtn(RELEASES_URL + '#macos', 'Download for macOS (.command)', '🍎', 'btn-secondary');
+  secondary.innerHTML = makeBtn(RELEASES_URL, 'Download for macOS (.command)', '🍎', 'btn-secondary');
   cli.innerHTML = '<p class="cli-label">Windows PowerShell (run as Administrator)</p>' +
     `<code>irm ${RAW_BASE}/install.ps1 | iex</code>`;
 } else if (isMac) {
   osBadge.textContent = 'macOS detected';
-  primary.innerHTML = makeBtn(RELEASES_URL + '#macos', 'Download for macOS (.command)', '🍎', 'btn-primary') +
+  primary.innerHTML = makeBtn(RELEASES_URL, 'Download for macOS (.command)', '🍎', 'btn-primary') +
     '<p class="platform-note">Download install.command, then double-click it (right-click → Open on first run)</p>';
-  secondary.innerHTML = makeBtn(RELEASES_URL + '#windows', 'Download for Windows (.bat)', '⊞', 'btn-secondary');
+  secondary.innerHTML = makeBtn(RELEASES_URL, 'Download for Windows (.bat)', '⊞', 'btn-secondary');
   cli.innerHTML = '<p class="cli-label">macOS Terminal</p>' +
     `<code>curl -fsSL ${RAW_BASE}/install.sh | bash</code>`;
 } else {
