@@ -17,8 +17,8 @@ Run your own Paperclip instance on macOS or Windows in one command.
 
 | Platform | Download | Notes |
 |---|---|---|
-| macOS | [install.command](https://github.com/ArtificialJerome/paperclip-installer/releases/latest) | Double-click in Finder (right-click → Open on first run) |
-| Windows | [install.bat + install.ps1](https://github.com/ArtificialJerome/paperclip-installer/releases/latest) | Download both to the same folder, double-click install.bat |
+| macOS | [install.command](https://github.com/ArtificialJerome/skynet-paperclip/releases/latest) | Double-click in Finder (right-click → Open on first run) |
+| Windows | [install.bat + install.ps1](https://github.com/ArtificialJerome/skynet-paperclip/releases/latest) | Download both to the same folder, double-click install.bat |
 
 Or open the installer page: [paperclip-installer landing page](https://artificialjerome.github.io/paperclip-installer)
 
@@ -29,7 +29,7 @@ Or open the installer page: [paperclip-installer landing page](https://artificia
 ### macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ArtificialJerome/paperclip-installer/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ArtificialJerome/skynet-paperclip/main/install.sh | bash
 ```
 
 ### Windows
@@ -37,7 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/ArtificialJerome/paperclip-installe
 Open PowerShell **as Administrator**, then run:
 
 ```powershell
-irm https://raw.githubusercontent.com/ArtificialJerome/paperclip-installer/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/ArtificialJerome/skynet-paperclip/main/install.ps1 | iex
 ```
 
 ---
