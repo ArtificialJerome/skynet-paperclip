@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "profiles": {
+    "openrouter:default": {
+      "type": "api_key",
+      "provider": "openrouter",
+      "key": "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"
+    },
+    "google:default": {
+      "type": "api_key",
+      "provider": "google",
+      "key": "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"
+    },
+    "openai:default": {
+      "type": "api_key",
+      "provider": "openai",
+      "key": "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"
+    },
+    "qwen:default": {
+      "type": "api_key",
+      "provider": "qwen",
+      "key": "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"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "usageStats": {
+    "openai:default": {
+      "errorCount": 1,
+      "failureCounts": {
+        "auth": 1
+      },
+      "lastFailureAt": 1778347050939,
+      "cooldownUntil": 1778347080939,
+      "cooldownReason": "auth"
+    }
+  }
+}

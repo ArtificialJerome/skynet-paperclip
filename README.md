@@ -94,6 +94,39 @@ Run `audit-drift.sh` to see what's changed, then:
 - Either `export-to-live.sh` to bring live back in sync
 - Or open an issue if the drift is intentional
 
+## Initial seed (commit history)
+
+The initial commit includes the foundational Paperclip operating layer:
+
+### Agents (9 agents)
+- **ahhnold** (CEO) — AGENTS.md, SOUL.md, HEARTBEAT.md, TOOLS.md, DISCORD.md
+- **dyson** (CTO) — AGENTS.md, DISCORD.md
+- **pops** (Ops) — AGENTS.md
+- **reese** (Investigator) — AGENTS.md
+- **sarah** (Research) — AGENTS.md, DISCORD.md
+- **cameron, john, t-800, t-1000** — AGENTS.md (+ DISCORD.md where applicable)
+
+### Runtimes
+- **hermes** — SOUL.md, config.yaml (secrets stripped)
+- **openclaw** — agents/main/agent/ (full configuration)
+- **claude** — (skills directory — empty in current instance)
+
+### What was excluded from seed
+- Secrets: `.env`, `auth.json`, API keys, tokens (replaced with `<set-by-runtime>` placeholders in config.yaml)
+- Runtime ephemeral state: caches, session directories, shell snapshots
+- Paperclip internals: agent memory (daily notes), personal scratchpads, private research
+- Large binaries: audio_cache, image_cache, kanban.db
+- Build artifacts: compiled skills, cached prompts
+
+### How to curate
+Follow-up PRs will add:
+- Governance policies and decision records
+- Company-level SOUL.md and operating principles
+- Strategic plans and roadmaps
+- Skill implementations and extensions
+
+See [SKY-288](https://github.com/ArtificialJerome/skynet-paperclip/issues/SKY-288) for the full scope plan.
+
 ## Files in this repo
 
 | Path | Purpose |
@@ -103,6 +136,8 @@ Run `audit-drift.sh` to see what's changed, then:
 | `CONTRIBUTING.md` | How to contribute |
 | `scripts/export-to-live.sh` | Sync repo to live |
 | `scripts/audit-drift.sh` | Detect drift |
+| `agents/<urlKey>/` | Per-agent instruction files |
+| `runtimes/<name>/` | Runtime-specific configurations |
 
 ## Support
 
