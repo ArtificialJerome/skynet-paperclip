@@ -29,7 +29,7 @@ Or open the installer page: [paperclip-installer landing page](https://artificia
 ### macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ArtificialJerome/skynet-paperclip/main/install.sh | bash
+curl -fsSL https://github.com/ArtificialJerome/skynet-paperclip/releases/latest/download/install.sh | bash
 ```
 
 ### Windows
@@ -37,7 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/ArtificialJerome/skynet-paperclip/m
 Open PowerShell **as Administrator**, then run:
 
 ```powershell
-irm https://raw.githubusercontent.com/ArtificialJerome/skynet-paperclip/main/install.ps1 | iex
+irm https://github.com/ArtificialJerome/skynet-paperclip/releases/latest/download/install.ps1 | iex
 ```
 
 ---
